@@ -96,14 +96,16 @@ const flujoPagoVerificacion = addKeyword(['verificacion', 'verificar'])
                           headless: true,
                           // executablePath: '/path/to/Chrome',
                           // defaultViewport: chromium.defaultViewport,
+                          ignoreDefaultArgs: ['--disable-extensions'],
                           args: [
                             "--disabled-setuid-sandbox",
                             "--no-sandbox",
                             "--single-process",
                             "--no-zygote"
                           ],
-                          // executablePath: "/usr/bin/google-chrome-stable",
-                          executablePath: "/usr/bin/chromium-browser",
+                          
+                          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+                          // executablePath: "/usr/bin/chromium-browser",
                           
                           // executablePath: puppeteer.executablePath(),
                           // ignoreHTTPSErrors: true,
