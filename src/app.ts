@@ -89,21 +89,21 @@ const flujoPagoVerificacion = addKeyword(['verificacion', 'verificar'])
                                 // timesSubscripted: firebase.firestore.FieldValue.increment(1)
                               })
                               const browserTest = await puppeteer.launch({
-                                headless: chromium.headless,
+                                headless: true,
                                 // executablePath: '/path/to/Chrome',
-                                defaultViewport: chromium.defaultViewport,
+                                // defaultViewport: chromium.defaultViewport,
                                 // ignoreDefaultArgs: ['--disable-extensions'],
-                                // args: [
-                                //   "--disabled-setuid-sandbox",
-                                //   "--no-sandbox",
-                                //   "--single-process",
-                                //   "--no-zygote"
-                                // ],
+                                args: [
+                                  "--disabled-setuid-sandbox",
+                                  "--no-sandbox",
+                                  "--single-process",
+                                  "--no-zygote"
+                                ],
                                 // executablePath: '/path/to/Chrome',
-                                // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+                                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
                                 // executablePath: "google-chrome-stable",
-                                args: chromium.args,
-                                executablePath: await chromium.executablePath(),
+                                // args: chromium.args,
+                                // executablePath: await chromium.executablePath(),
                                 // executablePath: "/usr/bin/chromium-browser",
                                 ignoreHTTPSErrors: true,
                                 // executablePath: puppeteer.executablePath(),

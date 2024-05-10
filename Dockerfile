@@ -1,12 +1,12 @@
 # Image size ~ 400MB
-FROM ghrc.io/puppeteer/puppeteer:22.7.1
+FROM ghrc.io/puppeteer/puppeteer:22.8.0
 ENV PUPPETEER_SKIP_CHROMIUM_DONWLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-CMD ["google-chrome-stable"]
+CMD ["npm", "start","google-chrome-stable"]
 
 
 FROM node:21-alpine3.18 as builder
