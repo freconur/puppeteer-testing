@@ -9,7 +9,7 @@ import { getJustOneName } from '../functionsUtils';
 import chromium from '@sparticuz/chromium'
 import cron from 'node-cron'
 import fsPromises from "node:fs/promises";
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import { dateConvertObject, dateConvertObjectSuscription } from 'date';
 import dotenv from 'dotenv'
 dotenv.config()
