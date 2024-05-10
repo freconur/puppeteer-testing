@@ -96,12 +96,12 @@ const flujoPagoVerificacion = addKeyword(['verificacion', 'verificar'])
                                 args: [
                                   "--disabled-setuid-sandbox",
                                   "--no-sandbox",
-                                  // "--single-process",
-                                  // "--no-zygote"
+                                  "--single-process",
+                                  "--no-zygote"
                                 ],
-                                executablePath: '/path/to/Chrome',
+                                // executablePath: '/path/to/Chrome',
                                 // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-                                // executablePath: await chromium.executablePath(),
+                                executablePath: "google-chrome-stable",
                                 // args: chromium.args,
                                 // executablePath: "/usr/bin/chromium-browser",
 
