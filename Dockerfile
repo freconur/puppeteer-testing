@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-CMD ["npm", "start"]
+CMD ["google-chrome-stable"]
 
 
 FROM node:21-alpine3.18 as builder

@@ -59,118 +59,120 @@ const flujoPagoVerificacion = addKeyword(['verificacion', 'verificar'])
               firstname = dniDePagoDeYape.data.apellidoMaterno
             }
           })
+          .then(r => {
+            try {
+              axios
+                .post(`${process.env.URL_API_DOCUMENT_EXCEL}`,
+                  {
+                    op: "listar"
+                  }
+                )
+                .then(async response => {
+                  const listaDeYapes = await response?.data.content
+                  console.log('listaDeYapes', listaDeYapes)
+                  if (listaDeYapes?.length > 5) {
+                    try {
+                      listaDeYapes?.map(async yape => {
+                        const nombre = yape.mensaje.slice(6, -26)
+                        console.log('nombre?.toLowerCase()', nombre?.toLowerCase())
+                        console.log('nomComPagoYape?.toLowerCase()', nomComPagoYape?.toLowerCase())
+                        if (nombre?.toLowerCase() === nomComPagoYape?.toLowerCase()) {
+                          await state.update({ estadoDeVerificacion: false })
+                          const subscriptionRef = db.collection("customers").doc(`${state.get('dniUsuario')}`)
+                          subscriptionRef.get().then(async user => {
+                            if (user.exists) {
+                              subscriptionRef.update({
+                                subscription: true,
+                                dateSubscription: new Date(),
+                                // timesSubscripted: db.firestore.FieldValue.increment(1)
+                                returningCustomer: true
+                                // timesSubscripted: firebase.firestore.FieldValue.increment(1)
+                              })
+                              const browserTest = await puppeteer.launch({
+                                headless: true,
+                                // executablePath: '/path/to/Chrome',
+                                // defaultViewport: chromium.defaultViewport,
+                                // ignoreDefaultArgs: ['--disable-extensions'],
+                                args: [
+                                  "--disabled-setuid-sandbox",
+                                  "--no-sandbox",
+                                  "--single-process",
+                                  "--no-zygote"
+                                ],
+
+                                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+                                // executablePath: await chromium.executablePath(),
+                                // args: chromium.args,
+                                // executablePath: "/usr/bin/chromium-browser",
+
+                                // executablePath: puppeteer.executablePath(),
+                                // ignoreHTTPSErrors: true,
+                                // slowMo:3000
+                              })
+                              const pageTest = await browserTest.newPage()
+                              await pageTest.goto(`${process.env.URL_PAGE_MANAGE}/customers/${state.getMyState().dniUsuario}`, {
+                                waitUntil: 'networkidle2',
+                              })
+
+                              await pageTest.setViewport({ width: 1366, height: 768 });
+
+                              // Get the height of the page after navigating to it.
+                              // This strategy to calculate height doesn't work always though. 
+                              const bodyHandle = await pageTest.$('body');
+                              const { height } = await bodyHandle.boundingBox();
+                              await bodyHandle.dispose();
+
+                              const calculatedVh = pageTest.viewport().height;
+                              let vhIncrease = 0;
+                              while (vhIncrease + calculatedVh < height) {
+                                // Here we pass the calculated viewport height to the context
+                                // of the page and we scroll by that amount
+                                await pageTest.evaluate(_calculatedVh => {
+                                  window.scrollBy(0, _calculatedVh);
+                                }, calculatedVh);
+                                // await pageTest.waitFor(300);
+                                vhIncrease = vhIncrease + calculatedVh;
+                              }
+
+                              // Setting the viewport to the full height might reveal extra elements
+                              await pageTest.setViewport({ width: 1366, height: calculatedVh });
+
+                              // Scroll back to the top of the page by using evaluate again.
+                              await pageTest.evaluate(() => {
+                                window.scrollTo(0, 0);
+                              });
+
+                              await pageTest.pdf({
+                                path: `${state.get('dniUsuario')}.pdf`,
+                                format: 'A4'
+                              });
+                              await browserTest.close()
+                                .then(r => {
+                                  console.log('primero')
+                                  return gotoFlow(flujoEnviaPdf)
+                                })
+                            }
+                          })
+                        }
+                      })
+                    } catch (error) {
+                      console.log(error)
+                      return fallBack('Algo paso en el camino, porfavor intenta nuevamente')
+                    }
+                  }
+                })
+                .then(async r => {
+                  if (state.get('estadoDeVerificacion')) await flowDynamic('Upps!, parece que hubo algun problema con la verificacion del pago, intenta nuevamente, escribe *VERIFICAR*')
+                })
+            } catch (error) {
+              console.log('error', error)
+            }
+          })
 
       } catch (error) {
         console.log('error:', error)
       }
 
-      try {
-        axios
-          .post(`${process.env.URL_API_DOCUMENT_EXCEL}`,
-            {
-              op: "listar"
-            }
-          )
-          .then(async response => {
-            const listaDeYapes = await response?.data.content
-            console.log('listaDeYapes', listaDeYapes)
-            if (listaDeYapes?.length > 5) {
-              try {
-                listaDeYapes?.map(async yape => {
-                  const nombre = yape.mensaje.slice(6, -26)
-                  console.log('nombre?.toLowerCase()',nombre?.toLowerCase())
-                  console.log('nomComPagoYape?.toLowerCase()',nomComPagoYape?.toLowerCase())
-                  if (nombre?.toLowerCase() === nomComPagoYape?.toLowerCase()) {
-                    await state.update({ estadoDeVerificacion: false })
-                    const subscriptionRef = db.collection("customers").doc(`${state.get('dniUsuario')}`)
-                    subscriptionRef.get().then(async user => {
-                      if (user.exists) {
-                        subscriptionRef.update({
-                          subscription: true,
-                          dateSubscription: new Date(),
-                          // timesSubscripted: db.firestore.FieldValue.increment(1)
-                          returningCustomer: true
-                          // timesSubscripted: firebase.firestore.FieldValue.increment(1)
-                        })
-                        const browserTest = await puppeteer.launch({
-                          headless: true,
-                          // executablePath: '/path/to/Chrome',
-                          defaultViewport: chromium.defaultViewport,
-                          // ignoreDefaultArgs: ['--disable-extensions'],
-                          // args: [
-                          //   "--disabled-setuid-sandbox",
-                          //   "--no-sandbox",
-                          //   "--single-process",
-                          //   "--no-zygote"
-                          // ],
-                          
-                          // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-                          executablePath: await chromium.executablePath(),
-                          args: chromium.args,
-                          // executablePath: "/usr/bin/chromium-browser",
-                          
-                          // executablePath: puppeteer.executablePath(),
-                          // ignoreHTTPSErrors: true,
-                          // slowMo:3000
-                        })
-                        const pageTest = await browserTest.newPage()
-                        await pageTest.goto(`${process.env.URL_PAGE_MANAGE}/customers/${state.getMyState().dniUsuario}`, {
-                          waitUntil: 'networkidle2',
-                        })
-
-                        await pageTest.setViewport({ width: 1366, height: 768 });
-
-                        // Get the height of the page after navigating to it.
-                        // This strategy to calculate height doesn't work always though. 
-                        const bodyHandle = await pageTest.$('body');
-                        const { height } = await bodyHandle.boundingBox();
-                        await bodyHandle.dispose();
-
-                        const calculatedVh = pageTest.viewport().height;
-                        let vhIncrease = 0;
-                        while (vhIncrease + calculatedVh < height) {
-                          // Here we pass the calculated viewport height to the context
-                          // of the page and we scroll by that amount
-                          await pageTest.evaluate(_calculatedVh => {
-                            window.scrollBy(0, _calculatedVh);
-                          }, calculatedVh);
-                          // await pageTest.waitFor(300);
-                          vhIncrease = vhIncrease + calculatedVh;
-                        }
-
-                        // Setting the viewport to the full height might reveal extra elements
-                        await pageTest.setViewport({ width: 1366, height: calculatedVh });
-
-                        // Scroll back to the top of the page by using evaluate again.
-                        await pageTest.evaluate(() => {
-                          window.scrollTo(0, 0);
-                        });
-
-                        await pageTest.pdf({
-                          path: `${state.get('dniUsuario')}.pdf`,
-                          format: 'A4'
-                        });
-                        await browserTest.close()
-                          .then(r => {
-                            console.log('primero')
-                            return gotoFlow(flujoEnviaPdf)
-                          })
-                      }
-                    })
-                  }
-                })
-              } catch (error) {
-                console.log(error)
-                return fallBack('Algo paso en el camino, porfavor intenta nuevamente')
-              }
-            }
-          })
-          .then(async r => {
-            if (state.get('estadoDeVerificacion')) await flowDynamic('Upps!, parece que hubo algun problema con la verificacion del pago, intenta nuevamente, escribe *VERIFICAR*')
-          })
-      } catch (error) {
-        console.log('error', error)
-      }
 
     }
   })
@@ -401,7 +403,7 @@ const main = async () => {
 
 
   // cron.schedule('*/1 * * * *', async () => {
-  cron.schedule('* 1 * * *', async () => {
+  cron.schedule('* */8 * * *', async () => {
     console.log('hemos entrado')
     const customersActiveSubscription = []
     const customerSubscriptionActive = db.collection("customers");
@@ -421,9 +423,6 @@ const main = async () => {
           const date2 = new Date(user.dateSubscription._seconds * 1000)
           const rtaDate = dateConvertObject(new Date(data?.setDate(data?.getDate() + 15)))
           const rtaDateValidate = dateConvertObjectSuscription(new Date(date2?.setDate(date2?.getDate() + 30)))
-          console.log('rtaDate', rtaDate)
-          console.log('rtaDateValidate', rtaDateValidate)
-          // console.log(`${user.id}`, rtaDate)
           if (currentlyDate && rtaDate) {
             if (rtaDate.date === currentlyDate.getDate() && rtaDate.month === currentlyDate.getMonth() && rtaDate.year === currentlyDate.getFullYear()) {
               await adapterProvider.sendMessage(`51${user.numberMobile}`,
