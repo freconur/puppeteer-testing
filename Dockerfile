@@ -1,5 +1,5 @@
 # Image size ~ 400MB
-FROM ghrc.io/puppeteer/puppeteer:22.8.0
+FROM ghrc.io/puppeteer/puppeteer-core:22.8.0
 ENV PUPPETEER_SKIP_CHROMIUM_DONWLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 WORKDIR /usr/src/app
