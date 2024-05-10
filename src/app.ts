@@ -9,7 +9,7 @@ import { getJustOneName } from '../functionsUtils';
 import chromium from '@sparticuz/chromium'
 import cron from 'node-cron'
 import fsPromises from "node:fs/promises";
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import { dateConvertObject, dateConvertObjectSuscription } from 'date';
 import dotenv from 'dotenv'
 dotenv.config()
@@ -89,22 +89,22 @@ const flujoPagoVerificacion = addKeyword(['verificacion', 'verificar'])
                                 // timesSubscripted: firebase.firestore.FieldValue.increment(1)
                               })
                               const browserTest = await puppeteer.launch({
-                                headless: true,
+                                headless: chromium.headless,
                                 // executablePath: '/path/to/Chrome',
-                                // defaultViewport: chromium.defaultViewport,
+                                defaultViewport: chromium.defaultViewport,
                                 // ignoreDefaultArgs: ['--disable-extensions'],
-                                args: [
-                                  "--disabled-setuid-sandbox",
-                                  "--no-sandbox",
-                                  "--single-process",
-                                  "--no-zygote"
-                                ],
+                                // args: [
+                                //   "--disabled-setuid-sandbox",
+                                //   "--no-sandbox",
+                                //   "--single-process",
+                                //   "--no-zygote"
+                                // ],
                                 // executablePath: '/path/to/Chrome',
                                 // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-                                executablePath: "google-chrome-stable",
-                                // args: chromium.args,
-                                // executablePath: "/usr/bin/chromium-browser",
-
+                                // executablePath: "google-chrome-stable",
+                                args: chromium.args,
+                                executablePath: "/usr/bin/chromium-browser",
+                                ignoreHTTPSErrors: true,
                                 // executablePath: puppeteer.executablePath(),
                                 // ignoreHTTPSErrors: true,
                                 // slowMo:3000
